@@ -11,12 +11,11 @@ interface ImageGalleryProps {
 const ImageGallery: React.FC<ImageGalleryProps> = ({ images, deleteImage }) => {
   return (
     <ImageList 
-      sx={{ width: '50vw', height: '65vh', paddingBottom: 1 }} 
       cols={2}
       gap={25}
     >
       {images.map((image) => (
-        <ImageListItem key={image.id} className="image-item">
+        <ImageListItem key={image._id} className="image-item">
           <img
             srcSet={`${image.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
             src={`${image.url}?w=164&h=164&fit=crop&auto=format`}
@@ -28,7 +27,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, deleteImage }) => {
               className="delete-button"
               onClick={(e) => {
                 e.stopPropagation();
-                deleteImage(image.id);
+                deleteImage(image._id);
               }}
             >
               Delete

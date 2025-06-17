@@ -6,69 +6,41 @@ import ImageGallery from './components/ImageGallery';
 import { Image } from './types';
 
 function App() {
-  const [images, setImages] = useState<Image[]>(
-    [
-      {
-        id: '0',
-        title: 'lady',
-        url:'https://picsum.photos/id/337/200/300'
-      },
-      {
-        id: '1',
-        title: 'cat',
-        url:'https://picsum.photos/id/339/200/300'
-      },
-      {
-        id: '2',
-        title: 'bird',
-        url:'https://picsum.photos/id/240/200/300'
-      },
-      {
-        id: '3',
-        title: 'fish',
-        url:'https://picsum.photos/id/313/200/300'
-      },
-      {
-        id: '4',
-        title: 'lady',
-        url:'https://picsum.photos/id/357/200/300'
-      },
-      {
-        id: '5',
-        title: 'cat',
-        url:'https://picsum.photos/id/238/200/300'
-      },
-      {
-        id: '6',
-        title: 'bird',
-        url:'https://picsum.photos/id/236/200/300'
-      },
-      {
-        id: '7',
-        title: 'fish',
-        url:'https://picsum.photos/id/137/200/300'
-      },
-      {
-        id: '8',
-        title: 'fish',
-        url:'https://picsum.photos/id/127/200/300'
-      },
-      {
-        id: '9',
-        title: 'fish',
-        url:'https://picsum.photos/id/117/200/300'
-      },
-    ]
-  );
+  const [images, setImages] = useState<Image[]>([]);
   const [filteredImages, setFilteredImages] = useState<Image[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   
-  const onUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      console.log(event.target.files[0]);
+  const onUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('title', file.name);
+
+      try {
+        const response = await fetch('http://localhost:3001/api/images', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const newImage = await response.json();
+        setImages(prevImages => [...prevImages, newImage]);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
     }
   };
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/images')
+      .then(response => response.json())
+      .then(data => setImages(data))
+      .catch(error => console.error('Error fetching images:', error));
+  }, []);
 
   useEffect(() => {
     setFilteredImages(images);
@@ -78,8 +50,20 @@ function App() {
     setFilteredImages(images.filter((image) => image.title.toLowerCase().includes(searchQuery.toLowerCase())));
   }, [searchQuery]);
 
-  const deleteImage = (id: string) => {
-    console.log(id);
+  const deleteImage = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/images/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Delete failed');
+      }
+
+      setImages(prevImages => prevImages.filter(image => image._id !== id));
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    }
   };
 
   return (
