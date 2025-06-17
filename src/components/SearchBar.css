@@ -1,0 +1,11 @@
+    .search-bar {
+        padding-left: 20px;
+        padding-right: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: #000;
+        width: 50%;
+        height: 100%;
+        margin-top: auto;
+        margin-bottom: auto;
+    }
